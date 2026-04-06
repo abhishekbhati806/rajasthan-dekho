@@ -1196,7 +1196,7 @@
                 </div>
                 <div class="contact-detail">
                     <i class="fas fa-phone"></i>
-                    <span>+91 98765 43210</span>
+                    <span>+91 73402 16146</span>
                 </div>
             </div>
             <div class="contact-form reveal-right">
@@ -1446,7 +1446,52 @@
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
 
     /* FORM */
-    document.getElementById('submitBtn').addEventListener('click', () => {
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+    const fname = document.getElementById('fname').value.trim();
+    const lname = document.getElementById('lname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const cities = document.getElementById('cities').value;
+    const message = document.getElementById('message').value.trim();
+    const fb = document.getElementById('formFeedback');
+    const btn = document.getElementById('submitBtn');
+
+    if (!fname || !email || !message) {
+        fb.innerHTML = '<div class="feedback-msg error"><i class="fas fa-exclamation-circle"></i> Please fill all required fields.</div>';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
+
+    try {
+        const response = await fetch('https://rajasthan-dekho-api.onrender.com/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fname, lname, email, phone, cities, message })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            fb.innerHTML = '<div class="feedback-msg success"><i class="fas fa-check-circle"></i> Thank you! We will contact you within 24 hours.</div>';
+            document.getElementById('fname').value = '';
+            document.getElementById('lname').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('cities').value = '';
+            document.getElementById('message').value = '';
+        } else {
+            fb.innerHTML = `<div class="feedback-msg error"><i class="fas fa-exclamation-circle"></i> ${data.message}</div>`;
+        }
+
+    } catch (err) {
+        fb.innerHTML = '<div class="feedback-msg error"><i class="fas fa-exclamation-circle"></i> Server not reachable.</div>';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Send Inquiry <i class="fas fa-arrow-right"></i>';
+    }
+});
         const fname = document.getElementById('fname').value.trim();
         const email = document.getElementById('email').value.trim();
         const message = document.getElementById('message').value.trim();
